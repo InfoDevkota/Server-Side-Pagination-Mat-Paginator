@@ -2,7 +2,7 @@ import { Component, ViewChild } from '@angular/core';
 
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 
 
 @Component({
@@ -17,7 +17,7 @@ export class AppComponent {
   dataSource = new MatTableDataSource<any>();
 
   title = 'pagination';
-d
+
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   constructor(private http: HttpClient) {
@@ -25,17 +25,60 @@ d
   }
 
   ngOnInit() {
-    this.getData();
+    this.getData('0', '5');
   }
 
-  getData(){
-    this.http.get(`http://localhost:3000/users`).subscribe((response: any) =>{
+  getData(offset, limit){
+    let params = new HttpParams();
+    params = params.set('offset', offset);
+    params = params.set('limit', limit);
 
-    this.loading = false;
-    this.users = response.users;
-    this.dataSource = new MatTableDataSource<any>(this.users);
-    this.dataSource.paginator = this.paginator;
+    this.http.get('http://localhost:3000/users?' + "&" + params.toString())
+    .subscribe((response: any) =>{
+
+      this.loading = false;
+      this.users = response.users;
+      this.users.length = response.total;
+
+      this.dataSource = new MatTableDataSource<any>(this.users);
+      this.dataSource.paginator = this.paginator;
 
     })
+  }
+
+  getNextData(currentSize, offset, limit){
+    let params = new HttpParams();
+    params = params.set('offset', offset);
+    params = params.set('limit', limit);
+
+    this.http.get('http://localhost:3000/users?' + "&" + params.toString())
+    .subscribe((response: any) =>{
+
+      this.loading = false;
+
+      this.users.length = currentSize;
+      this.users.push(...response.users);
+
+      this.users.length = response.total;
+
+      this.dataSource = new MatTableDataSource<any>(this.users);
+      this.dataSource._updateChangeSubscription();
+
+      this.dataSource.paginator = this.paginator;
+  
+    })
+  }
+
+  pageChanged(event){
+    this.loading = true;
+
+    let pageIndex = event.pageIndex;
+    let pageSize = event.pageSize;
+
+    let previousIndex = event.previousPageIndex;
+
+    let previousSize = pageSize * pageIndex;
+
+    this.getNextData(previousSize, (pageIndex).toString(), pageSize.toString());
   }
 }

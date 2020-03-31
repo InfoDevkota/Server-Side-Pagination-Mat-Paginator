@@ -9,7 +9,8 @@
 
   <mat-paginator
     [pageSizeOptions]="[5, 10, 15, 20, 30]"
-    showFirstLastButtons>
+    showFirstLastButtons
+    (page)="pageChanged($event)">
   </mat-paginator>
   <div *ngIf="loading;else table">
     <mat-spinner class="center"></mat-spinner>
