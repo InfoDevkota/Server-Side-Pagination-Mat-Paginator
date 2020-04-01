@@ -33,7 +33,7 @@ export class AppComponent {
     params = params.set('offset', offset);
     params = params.set('limit', limit);
 
-    this.http.get('http://localhost:3000/users?' + "&" + params.toString())
+    this.http.get('http://localhost:3000/users?' + params.toString())
     .subscribe((response: any) =>{
 
       this.loading = false;
@@ -51,7 +51,7 @@ export class AppComponent {
     params = params.set('offset', offset);
     params = params.set('limit', limit);
 
-    this.http.get('http://localhost:3000/users?' + "&" + params.toString())
+    this.http.get('http://localhost:3000/users?' + params.toString())
     .subscribe((response: any) =>{
 
       this.loading = false;
